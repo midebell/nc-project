@@ -1,0 +1,51 @@
+version: '3.1'
+
+services:
+  web:
+    # replace username/repo:tag with your name and image details
+    image: midebell/friendlyyellow:1.0
+    depends_on:
+      - consul-node1
+      - redis
+    ports:
+      - "80:80"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - "/home/docker/data:/data"
+
+  consul-node1:
+    image: bitnami/consul
+    environment:
+      - CONSUL_BOOTSTRAP_EXPECT=2
+      - CONSUL_CLIENT_LAN_ADDRESS=0.0.0.0
+      - CONSUL_DISABLE_KEYRING_FILE=true
+      - CONSUL_RETRY_JOIN=consul-node1
+    ports:
+      - '8300:8300'
+      - '8301:8301'
+      - '8301:8301/udp'
+      - '8500:8500'
+      - '8600:8600'
+      - '8600:8600/udp'
+    volumes:
+      - 'consul-node1_data:/bitnami'
+
+  consul-node2:
+    image: bitnami/consul
+    environment:
+      - CONSUL_BOOTSTRAP_EXPECT=2
+      - CONSUL_CLIENT_LAN_ADDRESS=0.0.0.0
+      - CONSUL_DISABLE_KEYRING_FILE=true
+      - CONSUL_RETRY_JOIN=consul-node1
+      - CONSUL_UI=false
+    volumes:
+      - 'consul-node2_data:/bitnami'
+
+volumes:
+  consul-node1_data:
+    driver: local
+  consul-node2_data:
+    driver: local
